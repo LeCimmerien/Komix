@@ -21,3 +21,17 @@ class Project(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class Chapter(models.Model):
+    project = models.ForeignKey(
+        Project, related_name="chapters", on_delete=models.CASCADE
+    )
+    url = models.URLField(max_length=2000)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return self.url
