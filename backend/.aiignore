@@ -1,0 +1,12 @@
+# Ignore project files
+.idea/
+*.iml
+.venv
+
+# Ignore test reports and test directories
+test-results/
+
+# Ignore logs and temporary files
+logs/
+*.log
+*.tmp
