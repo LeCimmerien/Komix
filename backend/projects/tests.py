@@ -1,7 +1,7 @@
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 
-from .models import Project
+from .models import Project, Chapter
 
 
 class ProjectModelTests(TestCase):
@@ -23,6 +23,18 @@ class ProjectModelTests(TestCase):
         other = User.objects.create_user(username="other", password="pass")
         Project.objects.create(owner=self.user, name="P1")
         Project.objects.create(owner=other, name="P1")  # should not raise
+
+
+class ChapterModelTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="artist", password="pass")
+        self.project = Project.objects.create(owner=self.user, name="Book")
+
+    def test_create_chapter_and_str(self):
+        c = Chapter.objects.create(project=self.project, url="https://example.com/1")
+        self.assertEqual(str(c), "https://example.com/1")
+        self.assertIsNotNone(c.created_at)
+        self.assertEqual(c.project, self.project)
 
 
 class ProjectApiTests(TestCase):
@@ -81,4 +93,67 @@ class ProjectApiTests(TestCase):
     def test_auth_required(self):
         c = Client()
         res = c.get("/api/v1/projects")
+        self.assertEqual(res.status_code, 401)
+
+
+class ChapterApiTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username="artist", password="pass")
+        self.client.login(username="artist", password="pass")
+        # create a project to attach chapters
+        res = self.client.post(
+            "/api/v1/projects", data={"name": "P"}, content_type="application/json"
+        )
+        self.project_id = res.json()["id"]
+
+    def test_create_list_detail_update_delete_chapter(self):
+        # create
+        res = self.client.post(
+            f"/api/v1/projects/{self.project_id}/chapters",
+            data={"url": "https://example.com/ch1"},
+            content_type="application/json",
+        )
+        self.assertEqual(res.status_code, 200)
+        ch = res.json()
+        self.assertEqual(ch["url"], "https://example.com/ch1")
+        self.assertIn("created_at", ch)
+        cid = ch["id"]
+
+        # list
+        res = self.client.get(f"/api/v1/projects/{self.project_id}/chapters")
+        self.assertEqual(res.status_code, 200)
+        items = res.json()
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0]["id"], cid)
+
+        # detail
+        res = self.client.get(
+            f"/api/v1/projects/{self.project_id}/chapters/{cid}"
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()["id"], cid)
+
+        # update
+        res = self.client.patch(
+            f"/api/v1/projects/{self.project_id}/chapters/{cid}",
+            data={"url": "https://example.com/updated"},
+            content_type="application/json",
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()["url"], "https://example.com/updated")
+
+        # delete
+        res = self.client.delete(
+            f"/api/v1/projects/{self.project_id}/chapters/{cid}"
+        )
+        self.assertEqual(res.status_code, 204)
+        # now list empty
+        res = self.client.get(f"/api/v1/projects/{self.project_id}/chapters")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json(), [])
+
+    def test_auth_required_for_chapters(self):
+        c = Client()
+        res = c.get(f"/api/v1/projects/{self.project_id}/chapters")
         self.assertEqual(res.status_code, 401)
