@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "kAuth.apps.KAuthConfig",
     "projects.apps.ProjectsConfig",
+    "feed.apps.FeedConfig",
     "corsheaders",
 ]
 
