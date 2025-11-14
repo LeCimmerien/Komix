@@ -10,7 +10,7 @@ jobs:
   container-job:
 
     runs-on: ubuntu-latest
-    container: node:20-bookworm-slim
+    container: python:3.12-alpine
     strategy:
       max-parallel: 4
       matrix:
