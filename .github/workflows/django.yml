@@ -10,7 +10,7 @@ jobs:
   container-job:
 
     runs-on: ubuntu-latest
-    container: python:3.12-bookworm
+    container: python:3.12-alpine
     strategy:
       max-parallel: 4
     services:
