@@ -8,7 +8,7 @@ on:
 
 jobs:
   container-job:
-    environment: github_actions
+    environment: dev
     runs-on: ubuntu-latest
     container: python:3.12-alpine
     strategy:
@@ -16,10 +16,6 @@ jobs:
     services:
       postgres:
         image: postgres
-        env:
-          POSTGRES_USER: admin
-          POSTGRES_PASSWORD: admin
-          PGPASSWORD: admin
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -35,13 +31,7 @@ jobs:
         pip install -r requirements.txt
     - name: Init DB
       run: cd backend && python manage.py migrate
-      env:
-          POSTGRES_HOST: postgres
-          POSTGRES_PORT: 5432
     - name: Run Tests
       run: |
         cd backend/
         python manage.py test
-      env:
-          POSTGRES_HOST: postgres
-          POSTGRES_PORT: 5432
