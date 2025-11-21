@@ -33,6 +33,8 @@ jobs:
         python -m pip install --upgrade pip
         cd backend/
         pip install -r requirements.txt
+    - name: Check Alive
+      run: docker exec -it postgres psql -U admin -padmin -d postgres
     - name: Init DB
       run: cd backend && python manage.py migrate
     - name: Run Tests
