@@ -128,9 +128,7 @@ class ChapterApiTests(TestCase):
         self.assertEqual(items[0]["id"], cid)
 
         # detail
-        res = self.client.get(
-            f"/api/v1/projects/{self.project_id}/chapters/{cid}"
-        )
+        res = self.client.get(f"/api/v1/projects/{self.project_id}/chapters/{cid}")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.json()["id"], cid)
 
@@ -144,9 +142,7 @@ class ChapterApiTests(TestCase):
         self.assertEqual(res.json()["url"], "https://example.com/updated")
 
         # delete
-        res = self.client.delete(
-            f"/api/v1/projects/{self.project_id}/chapters/{cid}"
-        )
+        res = self.client.delete(f"/api/v1/projects/{self.project_id}/chapters/{cid}")
         self.assertEqual(res.status_code, 204)
         # now list empty
         res = self.client.get(f"/api/v1/projects/{self.project_id}/chapters")

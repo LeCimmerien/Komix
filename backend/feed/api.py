@@ -86,7 +86,9 @@ def unsubscribe_project(request, project_id: int):
     return HttpResponse(status=204)
 
 
-@router.get("/projects/{project_id}/subscribers", auth=django_auth, response=list[UserOut])
+@router.get(
+    "/projects/{project_id}/subscribers", auth=django_auth, response=list[UserOut]
+)
 def list_project_subscribers(request, project_id: int):
     project = get_object_or_404(Project, id=project_id)
     # Only project owner can view subscribers
