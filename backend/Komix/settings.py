@@ -81,13 +81,13 @@ WSGI_APPLICATION = "Komix.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "example",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "NAME": os.environ["POSTGRES_DB"],
+        "USER": os.environ["POSTGRES_USER"],
+        "PASSWORD": os.environ["POSTGRES_PASSWORD"],
+        "HOST": os.environ["POSTGRES_HOST"],
+        "PORT": os.environ["POSTGRES_PORT"],
         "TEST": {
-            "NAME": "test_postgres",
+            "NAME": f"test_{os.environ['POSTGRES_DB']}",
         },
     },
 }
