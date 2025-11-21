@@ -33,10 +33,11 @@ jobs:
         python -m pip install --upgrade pip
         cd backend/
         pip install -r requirements.txt
-    - name: Check Alive
-      run: psql -U admin -padmin -d postgres
     - name: Init DB
       run: cd backend && python manage.py migrate
+      env:
+          POSTGRES_HOST: postgres
+          POSTGRES_PORT: 5432
     - name: Run Tests
       run: |
         cd backend/
