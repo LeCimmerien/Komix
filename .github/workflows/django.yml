@@ -8,7 +8,7 @@ on:
 
 jobs:
   container-job:
-
+    environment: github_actions
     runs-on: ubuntu-latest
     container: python:3.12-alpine
     strategy:
