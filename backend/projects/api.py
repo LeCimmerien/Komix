@@ -3,6 +3,9 @@ from ninja import Router, Schema
 from ninja.security import django_auth
 from django.shortcuts import get_object_or_404
 from .models import Project, Chapter
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = Router()
 
@@ -34,6 +37,7 @@ def create_project(request, payload: ProjectIn):
     p = Project.objects.create(
         owner=request.user, name=payload.name, description=payload.description or ""
     )
+    logger.info(f"Created project {p.id} by user {request.user.id}")
     return _project_out(p)
 
 
@@ -51,6 +55,7 @@ def update_project(request, project_id: int, payload: ProjectIn):
     if payload.description is not None:
         p.description = payload.description
     p.save()
+    logger.info(f"Updated project {p.id} by user {request.user.id}")
     return _project_out(p)
 
 
@@ -58,6 +63,7 @@ def update_project(request, project_id: int, payload: ProjectIn):
 def delete_project(request, project_id: int):
     p = get_object_or_404(Project, id=project_id, owner=request.user)
     p.delete()
+    logger.info(f"Deleted project {p.id} by user {request.user.id}")
     return HttpResponse(status=204)
 
 
@@ -88,6 +94,9 @@ def list_chapters(request, project_id: int):
 def create_chapter(request, project_id: int, payload: ChapterIn):
     project = get_object_or_404(Project, id=project_id, owner=request.user)
     c = Chapter.objects.create(project=project, url=payload.url)
+    logger.info(
+        f"Created chapter {c.id} for project {project.id} by user {request.user.id}"
+    )
     return _chapter_out(c)
 
 
@@ -109,6 +118,9 @@ def update_chapter(request, project_id: int, chapter_id: int, payload: ChapterIn
     if payload.url is not None:
         c.url = payload.url
     c.save()
+    logger.info(
+        f"Updated chapter {c.id} for project {project.id} by user {request.user.id}"
+    )
     return _chapter_out(c)
 
 
@@ -117,4 +129,7 @@ def delete_chapter(request, project_id: int, chapter_id: int):
     project = get_object_or_404(Project, id=project_id, owner=request.user)
     c = get_object_or_404(Chapter, id=chapter_id, project=project)
     c.delete()
+    logger.info(
+        f"Deleted chapter {c.id} for project {project.id} by user {request.user.id}"
+    )
     return HttpResponse(status=204)
