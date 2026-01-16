@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,10 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-85aonz3#dllsn%4)pwc6+-l0u(0y6&df5qlnfi*z)9*@^i5vi9"
+SECRET_KEY = os.environ["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ["DEBUG"]
 
 ALLOWED_HOSTS = ["*"]
 
@@ -115,12 +118,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "fr-fr"
 
 TIME_ZONE = "UTC"
-
 USE_I18N = True
-
 USE_TZ = True
 
 
@@ -134,16 +135,17 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# EMAIL_BACKEND = "django.actions.mail.backends.smtp.EmailBackend"
-EMAIL_BACKEND = "django.actions.mail.backends.filebased.EmailBackend"
-EMAIL_FILE_PATH = "./tmp/app-messages"
-# DEFAULT_FROM_EMAIL = "noreply@webkomix.fr"
-# SERVER_EMAIL = "noreply@webkomix.fr"
-EMAIL_USE_TLS = True
-EMAIL_HOST = "smtp-relay.brevo.com"
-EMAIL_PORT = 587
-# EMAIL_HOST_USER = os.environ["SMTP_HOST_USER"]
-# EMAIL_HOST_PASSWORD = os.environ["SMTP_HOST_PASSWORD"]
+EMAIL_BACKEND = "django.actions.mail.backends.filebased.EmailBackend" if DEBUG else "django.actions.mail.backends.smtp.EmailBackend"
+if DEBUG:
+    EMAIL_FILE_PATH = "./tmp/app-messages"
+else:
+    EMAIL_HOST = "smtp-relay.brevo.com"
+    EMAIL_PORT = 587
+    EMAIL_HOST_USER = os.environ["SMTP_HOST_USER"]
+    EMAIL_HOST_PASSWORD = os.environ["SMTP_HOST_PASSWORD"]
+    DEFAULT_FROM_EMAIL = "noreply@webkomix.fr"
+    SERVER_EMAIL = "noreply@webkomix.fr"
+    EMAIL_USE_TLS = True
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
