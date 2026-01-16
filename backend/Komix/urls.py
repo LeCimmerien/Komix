@@ -15,8 +15,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+import json
 from django.contrib import admin
 from django.urls import path
+from django.http import HttpRequest, HttpResponse
 from ninja import NinjaAPI
 from ninja.security import SessionAuth
 from kAuth.api import router as auth_router
@@ -29,4 +31,14 @@ api.add_router("kAuth", auth_router, auth=None)
 api.add_router("projects", projects_router)
 api.add_router("feed", feed_router)
 
-urlpatterns = [path("admin/", admin.site.urls), path("api/v1/", api.urls)]
+def alive(request: HttpRequest) -> HttpResponse:
+  return HttpResponse(
+    json.dumps({"alive": True}),
+    content_type="application/json"
+    )
+
+urlpatterns = [
+  path("admin/", admin.site.urls),
+  path("alive/", alive),
+  path("api/v1/", api.urls)
+  ]
