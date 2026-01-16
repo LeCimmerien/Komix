@@ -10,6 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+# pyright: basic
+
+
 from pathlib import Path
 import os
 
@@ -172,7 +175,7 @@ LOGGING = {
     "handlers": {
         "file": {
             "class": "logging.FileHandler",
-            "filename": "general.log",
+            "filename": "logs/general.log",
             "formatter": "verbose",
         },
     },
