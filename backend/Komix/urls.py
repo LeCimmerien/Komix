@@ -23,7 +23,8 @@ from kAuth.api import router as auth_router
 from projects.api import router as projects_router
 from feed.api import router as feed_router
 
-api = NinjaAPI(csrf=False, auth=SessionAuth())
+
+api = NinjaAPI(auth=SessionAuth)
 api.add_router("kAuth", auth_router, auth=None)
 api.add_router("projects", projects_router)
 api.add_router("feed", feed_router)

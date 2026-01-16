@@ -1,5 +1,4 @@
 from ninja import Router, Schema
-from ninja.security import django_auth
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
@@ -30,7 +29,7 @@ def _project_out(p: Project) -> ProjectOut:
 
 
 # Follow endpoints
-@router.get("/following", auth=django_auth, response=list[UserOut])
+@router.get("/following", response=list[UserOut])
 def list_following(request):
     user = request.user
     User = get_user_model()
@@ -38,7 +37,7 @@ def list_following(request):
     return [_user_out(u) for u in qs]
 
 
-@router.get("/followers", auth=django_auth, response=list[UserOut])
+@router.get("/followers", response=list[UserOut])
 def list_followers(request):
     user = request.user
     User = get_user_model()
@@ -46,7 +45,7 @@ def list_followers(request):
     return [_user_out(u) for u in qs]
 
 
-@router.post("/follow/{user_id}", auth=django_auth, response=UserOut)
+@router.post("/follow/{user_id}", response=UserOut)
 def follow_user(request, user_id: int):
     User = get_user_model()
     target = get_object_or_404(User, id=user_id)
@@ -57,7 +56,7 @@ def follow_user(request, user_id: int):
     return _user_out(target)
 
 
-@router.delete("/follow/{user_id}", auth=django_auth)
+@router.delete("/follow/{user_id}")
 def unfollow_user(request, user_id: int):
     User = get_user_model()
     target = get_object_or_404(User, id=user_id)
@@ -66,20 +65,20 @@ def unfollow_user(request, user_id: int):
 
 
 # Subscription endpoints
-@router.get("/subscriptions", auth=django_auth, response=list[ProjectOut])
+@router.get("/subscriptions", response=list[ProjectOut])
 def list_subscriptions(request):
     qs = Project.objects.filter(subscriptions__user=request.user).order_by("name")
     return [_project_out(p) for p in qs]
 
 
-@router.post("/subscribe/{project_id}", auth=django_auth, response=ProjectOut)
+@router.post("/subscribe/{project_id}", response=ProjectOut)
 def subscribe_project(request, project_id: int):
     project = get_object_or_404(Project, id=project_id)
     Subscription.objects.get_or_create(user=request.user, project=project)
     return _project_out(project)
 
 
-@router.delete("/subscribe/{project_id}", auth=django_auth)
+@router.delete("/subscribe/{project_id}")
 def unsubscribe_project(request, project_id: int):
     project = get_object_or_404(Project, id=project_id)
     Subscription.objects.filter(user=request.user, project=project).delete()
@@ -87,7 +86,7 @@ def unsubscribe_project(request, project_id: int):
 
 
 @router.get(
-    "/projects/{project_id}/subscribers", auth=django_auth, response=list[UserOut]
+    "/projects/{project_id}/subscribers", response=list[UserOut]
 )
 def list_project_subscribers(request, project_id: int):
     project = get_object_or_404(Project, id=project_id)
