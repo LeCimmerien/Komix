@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
-from django.http import HttpResponse
+from django.contrib.auth.models import AbstractUser
+from django.http import HttpResponse, HttpRequest
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from ninja import Schema, Router
@@ -31,15 +32,15 @@ class ApplyResetInput(Schema):
 
 
 @router.post("/register")
-def register(request, payload: RegisterInput):
-    u = get_user_model().objects.create_user(
+def register(request: HttpRequest, payload: RegisterInput) -> str:
+    u: AbstractUser = get_user_model().objects.create_user(
         username=payload.username, password=payload.password, email=payload.email
     )
-    return u.id
+    return u.pk
 
 
 @router.post("/login")
-def login(request, payload: LogInput):
+def login(request: HttpRequest, payload: LogInput):
     u = auth.authenticate(request, username=payload.username, password=payload.password)
     if u is None:
         return HttpResponse(status=401)
@@ -48,9 +49,9 @@ def login(request, payload: LogInput):
 
 
 @router.post("/login/reset")
-def send_reset(request, payload: ResetInput):
-    u = get_object_or_404(get_user_model(), username=payload.value)
-    r = Reset(id=uuid.uuid4(), user_id=u.id)
+def send_reset(request: HttpRequest, payload: ResetInput):
+    u: AbstractUser = get_object_or_404(get_user_model(), username=payload.value)
+    r = Reset(id=uuid.uuid4(), user_id=u.pk)
     r.save()
 
     base_url = "http://localhost:3000/"
@@ -65,7 +66,7 @@ def send_reset(request, payload: ResetInput):
 
 
 @router.post("/reset")
-def apply_reset(request, payload: ApplyResetInput):
+def apply_reset(request: HttpRequest, payload: ApplyResetInput):
     r = get_object_or_404(Reset, id=payload.reset_id)
     r.user.set_password(payload.password)
 

@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from ninja import Router, Schema
 from django.shortcuts import get_object_or_404
 from .models import Project, Chapter
@@ -25,14 +25,16 @@ def _project_out(p: Project) -> ProjectOut:
     return ProjectOut(id=p.id, name=p.name, description=p.description)
 
 
-@router.get("", response=list[ProjectOut])
-def list_projects(request):
+@router.get("", response=list[ProjectOut], auth=None)
+def list_projects(request: HttpRequest):
+    print(request)
     qs = Project.objects.filter(owner=request.user).order_by("-created_at")
+    print(qs[0])
     return [_project_out(p) for p in qs]
 
 
 @router.post("", response=ProjectOut)
-def create_project(request, payload: ProjectIn):
+def create_project(request: HttpRequest, payload: ProjectIn):
     p = Project.objects.create(
         owner=request.user, name=payload.name, description=payload.description or ""
     )
@@ -41,13 +43,13 @@ def create_project(request, payload: ProjectIn):
 
 
 @router.get("/{project_id}", response=ProjectOut)
-def get_project(request, project_id: int):
+def get_project(request: HttpRequest, project_id: int):
     p = get_object_or_404(Project, id=project_id, owner=request.user)
     return _project_out(p)
 
 
 @router.patch("/{project_id}", response=ProjectOut)
-def update_project(request, project_id: int, payload: ProjectIn):
+def update_project(request: HttpRequest, project_id: int, payload: ProjectIn):
     p = get_object_or_404(Project, id=project_id, owner=request.user)
     if payload.name is not None:
         p.name = payload.name
@@ -59,7 +61,7 @@ def update_project(request, project_id: int, payload: ProjectIn):
 
 
 @router.delete("/{project_id}")
-def delete_project(request, project_id: int):
+def delete_project(request: HttpRequest, project_id: int):
     p = get_object_or_404(Project, id=project_id, owner=request.user)
     p.delete()
     logger.info(f"Deleted project {p.id} by user {request.user.id}")
@@ -83,14 +85,14 @@ def _chapter_out(c: Chapter) -> ChapterOut:
 
 
 @router.get("/{project_id}/chapters", response=list[ChapterOut])
-def list_chapters(request, project_id: int):
+def list_chapters(request: HttpRequest, project_id: int):
     project = get_object_or_404(Project, id=project_id, owner=request.user)
     qs = project.chapters.all().order_by("-created_at")
     return [_chapter_out(c) for c in qs]
 
 
 @router.post("/{project_id}/chapters", response=ChapterOut)
-def create_chapter(request, project_id: int, payload: ChapterIn):
+def create_chapter(request: HttpRequest, project_id: int, payload: ChapterIn):
     project = get_object_or_404(Project, id=project_id, owner=request.user)
     c = Chapter.objects.create(project=project, url=payload.url)
     logger.info(
@@ -102,7 +104,7 @@ def create_chapter(request, project_id: int, payload: ChapterIn):
 @router.get(
     "/{project_id}/chapters/{chapter_id}", response=ChapterOut
 )
-def get_chapter(request, project_id: int, chapter_id: int):
+def get_chapter(request: HttpRequest, project_id: int, chapter_id: int):
     project = get_object_or_404(Project, id=project_id, owner=request.user)
     c = get_object_or_404(Chapter, id=chapter_id, project=project)
     return _chapter_out(c)
@@ -111,7 +113,7 @@ def get_chapter(request, project_id: int, chapter_id: int):
 @router.patch(
     "/{project_id}/chapters/{chapter_id}", response=ChapterOut
 )
-def update_chapter(request, project_id: int, chapter_id: int, payload: ChapterIn):
+def update_chapter(request: HttpRequest, project_id: int, chapter_id: int, payload: ChapterIn):
     project = get_object_or_404(Project, id=project_id, owner=request.user)
     c = get_object_or_404(Chapter, id=chapter_id, project=project)
     if payload.url is not None:
@@ -124,7 +126,7 @@ def update_chapter(request, project_id: int, chapter_id: int, payload: ChapterIn
 
 
 @router.delete("/{project_id}/chapters/{chapter_id}")
-def delete_chapter(request, project_id: int, chapter_id: int):
+def delete_chapter(request: HttpRequest, project_id: int, chapter_id: int):
     project = get_object_or_404(Project, id=project_id, owner=request.user)
     c = get_object_or_404(Chapter, id=chapter_id, project=project)
     c.delete()
