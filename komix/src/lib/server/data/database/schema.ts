@@ -1,5 +1,5 @@
 import { pgTable, uuid, varchar, date, text} from 'drizzle-orm/pg-core';
-import type { HashedPassword } from '../auth';
+import type { HashedPassword } from '../../auth';
 
 export const user = pgTable('user', {
     id: uuid().defaultRandom().primaryKey(),
@@ -9,8 +9,3 @@ export const user = pgTable('user', {
     createdAt: date({ mode: "date" }).defaultNow(),
     deletedAt: date({ mode: "date" })
 });
-
-export const session = pgTable('session', {
-    id: uuid().defaultRandom().primaryKey(),
-    userId: uuid().references(() => user.id) 
-})
