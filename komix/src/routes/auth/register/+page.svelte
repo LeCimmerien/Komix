@@ -1,33 +1,15 @@
 <script lang="ts">
+	import RegisterForm from "$lib/components/RegisterForm.svelte";
+
 	const { form } = $props();
 </script>
 
-<form method="POST">
-	<label>
-		Email
-		<input name="email" type="email">
-	</label>
-    <label>
-		Username
-		<input name="username" type="text">
-	</label>
-	<label>
-		Password
-		<input name="password" type="password">
-	</label>
-	<label>
-		Confirm Password
-		<input name="password-confirm" type="password">
-	</label>
-	{#if form?.message}
-        <p class="error">{form.message}</p>
-    {/if}
-	<button type="submit">Register</button>
-</form>
-
-<style>
-    .error {
-        color: red;
-        font-weight: bold;
-    }
-</style>
+<div class="flex">
+	<div class="flex flex-grow items-center justify-center">  
+		<RegisterForm title="Weklcome !" action="?/register" form={form}> </RegisterForm>
+	</div>
+	<img
+	class="w-1/2 h-1/2 object-fit"
+	src="https://images.pexels.com/photos/7809122/pexels-photo-7809122.jpeg?_gl=1*1ygshig*_ga*MTIwMjU3MTAxNC4xNzY5MzgwNjIz*_ga_8JE65Q40S6*czE3NjkzODA2MjMkbzEkZzEkdDE3NjkzODA2MzAkajUzJGwwJGgw"
+	alt="Des comicbooks en pile les uns sur les autres" />
+</div>
