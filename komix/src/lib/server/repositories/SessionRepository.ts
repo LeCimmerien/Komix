@@ -1,6 +1,6 @@
 import { failure, success, type Result } from "$lib/utils/result";
-import db from '$lib/server/database';
-import { session, user } from '$lib/server/database/schema';
+import db from '$lib/server/data/database';
+import { session, user } from '$lib/server/data/database/schema';
 import { eq } from "drizzle-orm";
 import type { User } from "./UserRepository";
 
