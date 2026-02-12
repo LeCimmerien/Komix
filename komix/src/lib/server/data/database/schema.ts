@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, date, text} from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, date, text, timestamp, primaryKey, char} from 'drizzle-orm/pg-core';
 import type { HashedPassword } from '../../auth';
 
 export const user = pgTable('user', {
@@ -9,3 +9,20 @@ export const user = pgTable('user', {
     createdAt: date({ mode: "date" }).defaultNow(),
     deletedAt: date({ mode: "date" })
 });
+
+export const project = pgTable('project', {
+    id: uuid().defaultRandom().primaryKey(),
+    author: uuid().notNull().references(() => user.id),
+    name: char().notNull(),
+    description: text().notNull(),
+    createdAt: date({ mode: "date" }).defaultNow(),
+    deletedAt: date({ mode: "date" })
+})
+
+export const userSubscriptions = pgTable('user_subscriptions', {
+  userId: uuid().notNull().references(() => user.id),
+  projectId: uuid().notNull().references(() => project.id),
+  subscribedAt: timestamp().defaultNow(),
+}, (table) => [
+  primaryKey({ columns: [table.userId, table.projectId] })
+]);
