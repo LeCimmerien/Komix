@@ -1,4 +1,6 @@
 <script lang="ts">
+	import ProjectCard from '$lib/components/ProjectCard.svelte';
+
 	const { data } = $props();
 </script>
 
@@ -16,20 +18,7 @@
 	{:else}
 		<div class="grid gap-4">
 			{#each data.projects as project (project.id)}
-				<div class="card bg-base-200 card-border">
-					<div class="card-body">
-						<div class="flex items-center gap-2">
-							<h2 class="card-title">{project.name}</h2>
-							<span class="badge badge-outline capitalize">{project.category}</span>
-						</div>
-						<p class="text-base-content/70">{project.description}</p>
-						{#if project.createdAt}
-							<p class="text-base-content/50 text-sm">
-								Cree le {new Date(project.createdAt).toLocaleDateString('fr-FR')}
-							</p>
-						{/if}
-					</div>
-				</div>
+				<ProjectCard {project} />
 			{/each}
 		</div>
 	{/if}

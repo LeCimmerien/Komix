@@ -1,4 +1,6 @@
 <script lang="ts">
+	import ProjectCard from '$lib/components/ProjectCard.svelte';
+
 	const { data } = $props();
 
 	const categoryLabels: Record<string, string> = {
@@ -20,17 +22,7 @@
 				<h2 class="mb-4 text-2xl font-semibold">{categoryLabels[category] ?? category}</h2>
 				<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{#each projects as project (project.id)}
-						<div class="card bg-base-200 card-border">
-							<div class="card-body">
-								<h3 class="card-title">{project.name}</h3>
-								<p class="text-base-content/70 line-clamp-2">{project.description}</p>
-								{#if project.createdAt}
-									<p class="text-base-content/50 text-sm">
-										{new Date(project.createdAt).toLocaleDateString('fr-FR')}
-									</p>
-								{/if}
-							</div>
-						</div>
+						<ProjectCard {project} />
 					{/each}
 				</div>
 			</section>

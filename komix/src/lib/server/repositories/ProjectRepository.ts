@@ -1,6 +1,6 @@
 import { failure, success, type Result } from "$lib/utils/result";
 import db from '$lib/server/data/database';
-import { project, type categoryEnum } from '$lib/server/data/database/schema';
+import { project, user, type categoryEnum } from '$lib/server/data/database/schema';
 import { eq, and, isNull, desc } from "drizzle-orm";
 
 export type Category = (typeof categoryEnum.enumValues)[number];
@@ -12,6 +12,10 @@ export interface Project {
     category: Category;
     description: string;
     createdAt: Date | null;
+}
+
+export interface ProjectWithAuthor extends Project {
+    authorName: string;
 }
 
 export enum ProjectError {
@@ -33,26 +37,49 @@ export class ProjectRepository {
         return p ? success(p) : failure(ProjectError.NOT_FOUND);
     }
 
-    static async findAll(): Promise<Project[]> {
+    static async findAll(): Promise<ProjectWithAuthor[]> {
         return db.select({
             id: project.id,
             author: project.author,
+            authorName: user.username,
             name: project.name,
             category: project.category,
             description: project.description,
             createdAt: project.createdAt,
-        }).from(project).where(isNull(project.deletedAt)).orderBy(desc(project.createdAt))
+        }).from(project)
+            .innerJoin(user, eq(project.author, user.id))
+            .where(isNull(project.deletedAt))
+            .orderBy(desc(project.createdAt))
     }
 
-    static async findAllByAuthor(authorId: string): Promise<Project[]> {
+    static async findLatest(limit: number): Promise<ProjectWithAuthor[]> {
         return db.select({
             id: project.id,
             author: project.author,
+            authorName: user.username,
             name: project.name,
             category: project.category,
             description: project.description,
             createdAt: project.createdAt,
-        }).from(project).where(and(eq(project.author, authorId), isNull(project.deletedAt)))
+        }).from(project)
+            .innerJoin(user, eq(project.author, user.id))
+            .where(isNull(project.deletedAt))
+            .orderBy(desc(project.createdAt))
+            .limit(limit)
+    }
+
+    static async findAllByAuthor(authorId: string): Promise<ProjectWithAuthor[]> {
+        return db.select({
+            id: project.id,
+            author: project.author,
+            authorName: user.username,
+            name: project.name,
+            category: project.category,
+            description: project.description,
+            createdAt: project.createdAt,
+        }).from(project)
+            .innerJoin(user, eq(project.author, user.id))
+            .where(and(eq(project.author, authorId), isNull(project.deletedAt)))
     }
 
     static async create(authorId: string, name: string, category: Category, description: string): Promise<Result<Project, ProjectError>> {

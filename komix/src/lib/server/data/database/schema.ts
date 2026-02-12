@@ -15,8 +15,8 @@ export const user = pgTable('user', {
     username: varchar({ length: 50 }).notNull(),
     email: varchar({ length: 255 }).notNull().unique(),
     passwordHash: text().$type<HashedPassword>().notNull(),
-    createdAt: date({ mode: "date" }).defaultNow(),
-    deletedAt: date({ mode: "date" })
+    createdAt: timestamp({ mode: "date" }).defaultNow(),
+    deletedAt: timestamp({ mode: "date" })
 });
 
 export const project = pgTable('project', {
@@ -25,8 +25,8 @@ export const project = pgTable('project', {
     name: char({length: 50}).notNull(),
     category: categoryEnum().notNull(),
     description: text().notNull(),
-    createdAt: date({ mode: "date" }).defaultNow(),
-    deletedAt: date({ mode: "date" })
+    createdAt: timestamp({ mode: "date" }).defaultNow(),
+    deletedAt: timestamp({ mode: "date" })
 })
 
 export const chapter = pgTable('chapter', {
@@ -35,8 +35,8 @@ export const chapter = pgTable('chapter', {
     title: varchar({ length: 255 }).notNull(),
     number: integer().notNull(),
     imagePath: text().notNull(),
-    createdAt: date({ mode: "date" }).defaultNow(),
-    deletedAt: date({ mode: "date" })
+    createdAt: timestamp({ mode: "date" }).defaultNow(),
+    deletedAt: timestamp({ mode: "date" })
 })
 
 export const userSubscriptions = pgTable('user_subscriptions', {

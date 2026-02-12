@@ -1,7 +1,7 @@
 import { failure, success, type Result } from "$lib/utils/result";
 import db from '$lib/server/data/database';
-import { chapter } from '$lib/server/data/database/schema';
-import { eq, and, isNull } from "drizzle-orm";
+import { chapter, project } from '$lib/server/data/database/schema';
+import { eq, and, isNull, desc } from "drizzle-orm";
 
 export interface Chapter {
     id: string;
@@ -12,12 +12,32 @@ export interface Chapter {
     createdAt: Date | null;
 }
 
+export interface ChapterWithProject extends Chapter {
+    projectName: string;
+}
+
 export enum ChapterError {
     NOT_FOUND,
     CREATION_FAILED
 }
 
 export class ChapterRepository {
+    static async findLatestWithProject(limit: number): Promise<ChapterWithProject[]> {
+        return db.select({
+            id: chapter.id,
+            projectId: chapter.projectId,
+            title: chapter.title,
+            number: chapter.number,
+            imagePath: chapter.imagePath,
+            createdAt: chapter.createdAt,
+            projectName: project.name,
+        }).from(chapter)
+            .innerJoin(project, eq(chapter.projectId, project.id))
+            .where(and(isNull(chapter.deletedAt), isNull(project.deletedAt)))
+            .orderBy(desc(chapter.createdAt), desc(chapter.number))
+            .limit(limit)
+    }
+
     static async findById(id: string): Promise<Result<Chapter, ChapterError>> {
         const [c] = await db.select({
             id: chapter.id,

@@ -43,6 +43,13 @@
       "when": 1770936851756,
       "tag": "0005_tricky_alex_wilder",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1770939038036,
+      "tag": "0006_slow_zuras",
+      "breakpoints": true
     }
   ]
 }
