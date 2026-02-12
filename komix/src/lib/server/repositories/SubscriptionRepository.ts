@@ -43,6 +43,7 @@ export class SubscriptionRepository {
             id: project.id,
             author: project.author,
             name: project.name,
+            category: project.category,
             description: project.description,
             createdAt: project.createdAt,
         })

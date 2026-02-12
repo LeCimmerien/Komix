@@ -7,7 +7,7 @@
         <a href="/" class="text-4xl font-extrabold">Komix</a>
         <div class="flex gap-2 items-center">
             <a href="/" class="btn btn-ghost">Discover</a>
-            <a href="/" class="btn btn-ghost">Categories</a>
+            <a href="/categories" class="btn btn-ghost">Categories</a>
             <a href="/" class="btn btn-ghost">Blog</a>
             <a href="/" class="btn btn-ghost">Contact</a>
         </div>

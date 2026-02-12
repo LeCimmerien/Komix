@@ -18,7 +18,10 @@
 			{#each data.projects as project (project.id)}
 				<div class="card bg-base-200 card-border">
 					<div class="card-body">
-						<h2 class="card-title">{project.name}</h2>
+						<div class="flex items-center gap-2">
+							<h2 class="card-title">{project.name}</h2>
+							<span class="badge badge-outline capitalize">{project.category}</span>
+						</div>
 						<p class="text-base-content/70">{project.description}</p>
 						{#if project.createdAt}
 							<p class="text-base-content/50 text-sm">

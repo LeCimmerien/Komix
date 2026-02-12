@@ -23,6 +23,24 @@
 			</div>
 
 			<div class="mb-4">
+				<label class="label" for="category">Categorie</label>
+				<select
+					name="category"
+					id="category"
+					class="select select-bordered w-full"
+					required
+				>
+					<option value="" disabled selected={!form?.category}>Choisir une categorie</option>
+					<option value="horreur" selected={form?.category === 'horreur'}>Horreur</option>
+					<option value="action" selected={form?.category === 'action'}>Action</option>
+					<option value="humour" selected={form?.category === 'humour'}>Humour</option>
+					<option value="sf" selected={form?.category === 'sf'}>SF</option>
+					<option value="thriller" selected={form?.category === 'thriller'}>Thriller</option>
+					<option value="fantastique" selected={form?.category === 'fantastique'}>Fantastique</option>
+				</select>
+			</div>
+
+			<div class="mb-4">
 				<label class="label" for="description">Description</label>
 				<textarea
 					name="description"

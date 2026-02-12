@@ -28,9 +28,13 @@ vi.mock('$lib/server/data/database/schema', () => ({
 		id: 'id',
 		author: 'author',
 		name: 'name',
+		category: 'category',
 		description: 'description',
 		createdAt: 'createdAt',
 		deletedAt: 'deletedAt'
+	},
+	categoryEnum: {
+		enumValues: ['horreur', 'action', 'humour', 'sf', 'thriller', 'fantastique']
 	}
 }));
 
@@ -46,6 +50,7 @@ const fakeProject: Project = {
 	id: 'project-1',
 	author: 'user-1',
 	name: 'My Comic',
+	category: 'action',
 	description: 'A great comic',
 	createdAt: new Date('2025-01-01')
 };
@@ -103,7 +108,7 @@ describe('ProjectRepository', () => {
 		it('should return the created project on success', async () => {
 			mockReturning.mockResolvedValue([fakeProject]);
 
-			const result = await ProjectRepository.create('user-1', 'My Comic', 'A great comic');
+			const result = await ProjectRepository.create('user-1', 'My Comic', 'action', 'A great comic');
 
 			expect(result.ok).toBe(true);
 			if (result.ok) expect(result.value).toEqual(fakeProject);
@@ -113,7 +118,7 @@ describe('ProjectRepository', () => {
 		it('should return CREATION_FAILED on database error', async () => {
 			mockReturning.mockRejectedValue(new Error('DB error'));
 
-			const result = await ProjectRepository.create('user-1', 'My Comic', 'A great comic');
+			const result = await ProjectRepository.create('user-1', 'My Comic', 'action', 'A great comic');
 
 			expect(result.ok).toBe(false);
 			if (!result.ok) expect(result.error).toBe(ProjectError.CREATION_FAILED);

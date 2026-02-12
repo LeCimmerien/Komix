@@ -1,5 +1,14 @@
-import { pgTable, uuid, varchar, date, text, timestamp, primaryKey, char, integer } from 'drizzle-orm/pg-core';
+import { pgTable, pgEnum, uuid, varchar, date, text, timestamp, primaryKey, char, integer } from 'drizzle-orm/pg-core';
 import type { HashedPassword } from '../../auth';
+
+export const categoryEnum = pgEnum('category', [
+    'horreur',
+    'action',
+    'humour',
+    'sf',
+    'thriller',
+    'fantastique'
+]);
 
 export const user = pgTable('user', {
     id: uuid().defaultRandom().primaryKey(),
@@ -14,6 +23,7 @@ export const project = pgTable('project', {
     id: uuid().defaultRandom().primaryKey(),
     author: uuid().notNull().references(() => user.id),
     name: char({length: 50}).notNull(),
+    category: categoryEnum().notNull(),
     description: text().notNull(),
     createdAt: date({ mode: "date" }).defaultNow(),
     deletedAt: date({ mode: "date" })
