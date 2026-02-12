@@ -3,7 +3,7 @@
     
     let { 
         title, 
-        action, 
+        action = null, 
         form,
         children = null
     } = $props();
@@ -53,13 +53,13 @@
         </div>
 
         <div>
-            <label for="password">Répeter le mot de passe</label>
+            <label for="password-confirm">Répeter le mot de passe</label>
                 <!-- pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])"  -->
 
             <input 
                 type="password"
-                name="password2"
-                id="password2"
+                name="password-confirm"
+                id="password-confirm"
                 class="input validator" required
                 placeholder="Password"
                 minlength="8" 

@@ -6,7 +6,7 @@
     <div class="flex gap-8 items-center">
         <a href="/" class="text-4xl font-extrabold">Komix</a>
         <div class="flex gap-2 items-center">
-            <a href="/" class="btn btn-ghost">Latest</a>
+            <a href="/" class="btn btn-ghost">Discover</a>
             <a href="/" class="btn btn-ghost">Categories</a>
             <a href="/" class="btn btn-ghost">Blog</a>
             <a href="/" class="btn btn-ghost">Contact</a>
@@ -30,6 +30,7 @@
         <input type="search" class="grow" placeholder="Search" />
     </label>
     {#if user}
+        <a href="/projects" class="btn btn-ghost">Projects</a>
         <form method="POST" action="/auth/login?/logout" style="display:inline;">
             <button type="submit" aria-label="disconnect">
                 <div class="avatar">

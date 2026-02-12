@@ -3,13 +3,14 @@ import { fail, redirect } from '@sveltejs/kit';
 import { AuthenticationService } from '$lib/server/services/AuthenticationService';
 
 export const actions = {
-	default: async ({cookies, request}) => {
+	register: async ({cookies, request}) => {
 		const data = await request.formData();
 		const email = data.get('email') as string;
 		const username = data.get('username') as string;
 		const password = data.get('password') as string;
 		const passwordConfirm = data.get('password-confirm') as string;
-
+		console.log("TEST")
+		console.log(password, passwordConfirm)
 		if (password !== passwordConfirm) {
 			return fail(401, { message: "Password didn't match"})
 		}

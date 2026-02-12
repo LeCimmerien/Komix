@@ -1,0 +1,1 @@
+ALTER TABLE "project" ALTER COLUMN "name" SET DATA TYPE char(50);

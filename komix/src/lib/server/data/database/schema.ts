@@ -13,7 +13,7 @@ export const user = pgTable('user', {
 export const project = pgTable('project', {
     id: uuid().defaultRandom().primaryKey(),
     author: uuid().notNull().references(() => user.id),
-    name: char().notNull(),
+    name: char({length: 50}).notNull(),
     description: text().notNull(),
     createdAt: date({ mode: "date" }).defaultNow(),
     deletedAt: date({ mode: "date" })

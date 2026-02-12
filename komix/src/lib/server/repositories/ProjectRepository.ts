@@ -54,7 +54,8 @@ export class ProjectRepository {
             });
 
             return success(p);
-        } catch {
+        } catch (erorr) {
+            console.log(erorr)
             return failure(ProjectError.CREATION_FAILED);
         }
     }
