@@ -22,6 +22,13 @@
       "when": 1769283725167,
       "tag": "0002_luxuriant_supernaut",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1770858865893,
+      "tag": "0003_new_chronomancer",
+      "breakpoints": true
     }
   ]
 }
