@@ -20,6 +20,15 @@ enum UserError {
 }
 
 export class UserRepository {
+    static async findById(id: string): Promise<Result<User, UserError>> {
+        const [u] = await db.select({
+            id: user.id,
+            username: user.username
+        }).from(user).where(eq(user.id, id)).limit(1)
+
+        return u?.id ? success(u) : failure(UserError.USER_NOT_FOUND);
+    }
+
     static async findByEmail(email: string): Promise<Result<User, UserError>> {
         const [u] = await db.select({
             id: user.id,

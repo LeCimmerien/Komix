@@ -25,7 +25,8 @@ vi.mock('../auth', () => ({
 vi.mock('../repositories/UserRepository', () => ({
 	UserRepository: {
 		fetchPasswordHashByEmail: vi.fn(),
-		create: vi.fn()
+		create: vi.fn(),
+		findById: vi.fn()
 	}
 }));
 
@@ -33,7 +34,7 @@ vi.mock('../repositories/SessionRepository', () => ({
 	SessionRepository: {
 		create: vi.fn(),
 		delete: vi.fn(),
-		getUserBySessionId: vi.fn()
+		getUserIdBySessionId: vi.fn()
 	}
 }));
 
@@ -47,7 +48,8 @@ describe('AuthenticationService', () => {
 	const mockUserCreate = UserRepository.create as Mock;
 	const mockSessionCreate = SessionRepository.create as Mock;
 	const mockSessionDelete = SessionRepository.delete as Mock;
-	const mockGetUserBySession = SessionRepository.getUserBySessionId as Mock;
+	const mockGetUserIdBySession = SessionRepository.getUserIdBySessionId as Mock;
+	const mockUserFindById = UserRepository.findById as Mock;
 	const mockCheckHash = checkHash as Mock;
 
 	beforeEach(() => {
@@ -149,7 +151,7 @@ describe('AuthenticationService', () => {
 
 	describe('getUserFromToken', () => {
 		it('should return TOKEN_EXPIRED when session is not found', async () => {
-			mockGetUserBySession.mockResolvedValue(failure('NOT_FOUND'));
+			mockGetUserIdBySession.mockResolvedValue(failure('NOT_FOUND'));
 
 			const result = await AuthenticationService.getUserFromToken('invalid-token');
 
@@ -157,9 +159,20 @@ describe('AuthenticationService', () => {
 			if (!result.ok) expect(result.error).toBe(AuthError.TOKEN_EXPIRED);
 		});
 
+		it('should return TOKEN_EXPIRED when user no longer exists', async () => {
+			mockGetUserIdBySession.mockResolvedValue(success('user-1'));
+			mockUserFindById.mockResolvedValue(failure('USER_NOT_FOUND'));
+
+			const result = await AuthenticationService.getUserFromToken('valid-token');
+
+			expect(result.ok).toBe(false);
+			if (!result.ok) expect(result.error).toBe(AuthError.TOKEN_EXPIRED);
+		});
+
 		it('should return the user on valid token', async () => {
 			const user = { id: 'user-1', username: 'testuser' };
-			mockGetUserBySession.mockResolvedValue(success(user));
+			mockGetUserIdBySession.mockResolvedValue(success('user-1'));
+			mockUserFindById.mockResolvedValue(success(user));
 
 			const result = await AuthenticationService.getUserFromToken('valid-token');
 

@@ -67,11 +67,18 @@ export class AuthenticationService {
 	}
 
 	static async getUserFromToken(token: string): Promise<Result<User, AuthError>> {
-		const session = await SessionRepository.getUserBySessionId(token);
+		const session = await SessionRepository.getUserIdBySessionId(token);
 		if (!session.ok) {
 			log.debug('Token lookup failed');
 			return failure(AuthError.TOKEN_EXPIRED);
 		}
-		return success(session.value);
+
+		const user = await UserRepository.findById(session.value);
+		if (!user.ok) {
+			log.warn({ userId: session.value }, 'Session references non-existent user');
+			return failure(AuthError.TOKEN_EXPIRED);
+		}
+
+		return success(user.value);
 	}
 }
