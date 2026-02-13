@@ -25,13 +25,12 @@ export const actions = {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
-            maxAge: 60 * 60 * 24 // 24 heures
+            maxAge: 60 * 60 * 24
         });
 		
 		throw redirect(303, '/');
 	},
 	logout: async ({cookies}) => {
-		// delete session
 		cookies.delete('session', { path: '/' });
         
         throw redirect(303, '/');

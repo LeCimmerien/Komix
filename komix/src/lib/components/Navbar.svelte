@@ -35,7 +35,7 @@
             <button type="submit" aria-label="disconnect">
                 <div class="avatar">
                     <div class="w-24 rounded">
-                        <img alt="user avatar" src="https://img.daisyui.com/images/profile/demo/batperson@192.webp" />
+                        <img alt="user avatar" class="avatar" src="https://img.daisyui.com/images/profile/demo/batperson@192.webp"/>
                     </div>
                 </div>
             </button>
@@ -45,3 +45,15 @@
     {/if}
     </div>
 </nav>
+
+<style>
+    img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+    .avatar {
+        width: 64px;
+        height: 64px;
+    }
+</style>
