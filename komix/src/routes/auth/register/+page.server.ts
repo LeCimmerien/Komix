@@ -12,12 +12,12 @@ export const actions = {
 		console.log("TEST")
 		console.log(password, passwordConfirm)
 		if (password !== passwordConfirm) {
-			return fail(401, { message: "Password didn't match"})
+			return fail(401, { message: "Password didn't match", email, username })
 		}
 
 		const token = await AuthenticationService.register(email, username, password)
 
-		if (!token.ok) return fail(401, { message: token.error})
+		if (!token.ok) return fail(401, { message: token.error, email, username })
 
 		cookies.set('session', token.value, {
             path: '/',

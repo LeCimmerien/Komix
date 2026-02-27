@@ -39,6 +39,15 @@ export const chapter = pgTable('chapter', {
     deletedAt: timestamp({ mode: "date" })
 })
 
+export const page = pgTable('page', {
+    id: uuid().defaultRandom().primaryKey(),
+    chapterId: uuid().notNull().references(() => chapter.id),
+    number: integer().notNull(),
+    imagePath: text().notNull(),
+    createdAt: timestamp({ mode: "date" }).defaultNow(),
+    deletedAt: timestamp({ mode: "date" })
+})
+
 export const userSubscriptions = pgTable('user_subscriptions', {
   userId: uuid().notNull().references(() => user.id),
   projectId: uuid().notNull().references(() => project.id),

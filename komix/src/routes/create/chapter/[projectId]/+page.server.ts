@@ -2,6 +2,13 @@ import type { Actions } from './$types';
 import { fail, redirect, error } from '@sveltejs/kit';
 import { ProjectRepository } from '$lib/server/repositories/ProjectRepository';
 import { ChapterRepository } from '$lib/server/repositories/ChapterRepository';
+import { PageRepository } from '$lib/server/repositories/PageRepository';
+import { storage } from '$lib/server/storage';
+import sharp from 'sharp';
+import { randomUUID } from 'node:crypto';
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
 
 export const actions = {
 	default: async ({ locals, request, params }) => {
@@ -21,26 +28,88 @@ export const actions = {
 
 		const data = await request.formData();
 		const title = (data.get('title') as string)?.trim();
-		const imagePath = (data.get('imagePath') as string)?.trim();
+		const files = data.getAll('files') as File[];
 
-		if (!title || !imagePath) {
+		if (!title) {
 			return fail(400, {
-				message: 'Tous les champs sont requis.',
-				title: title ?? '',
-				imagePath: imagePath ?? ''
+				message: 'Le titre est requis.',
+				title: title ?? ''
 			});
+		}
+
+		if (files.length === 0 || (files.length === 1 && files[0].size === 0)) {
+			return fail(400, {
+				message: 'Au moins une planche est requise.',
+				title
+			});
+		}
+
+		for (const file of files) {
+			if (!ALLOWED_TYPES.includes(file.type)) {
+				return fail(400, {
+					message: `Format non supporte: ${file.name}. Utilisez PNG, JPEG ou WebP.`,
+					title
+				});
+			}
+			if (file.size > MAX_FILE_SIZE) {
+				return fail(400, {
+					message: `Fichier trop volumineux: ${file.name}. Maximum 10 Mo.`,
+					title
+				});
+			}
 		}
 
 		const chapters = await ChapterRepository.findAllByProject(params.projectId);
 		const number = chapters.length + 1;
 
-		const result = await ChapterRepository.create(params.projectId, title, number, imagePath);
+		// Convert and save images
+		const savedPaths: string[] = [];
+		try {
+			for (const file of files) {
+				const buffer = Buffer.from(await file.arrayBuffer());
+				const webpBuffer = await sharp(buffer).webp({ quality: 80 }).toBuffer();
+				const filename = `${params.projectId}/${randomUUID()}.webp`;
+				const path = await storage.save(filename, webpBuffer);
+				savedPaths.push(path);
+			}
+		} catch {
+			// Clean up already saved files on error
+			for (const path of savedPaths) {
+				const filename = path.replace('/uploads/', '');
+				await storage.delete(filename);
+			}
+			return fail(500, {
+				message: "Erreur lors du traitement des images.",
+				title
+			});
+		}
 
-		if (!result.ok) {
+		const chapterResult = await ChapterRepository.create(
+			params.projectId,
+			title,
+			number,
+			savedPaths[0]
+		);
+
+		if (!chapterResult.ok) {
 			return fail(500, {
 				message: 'La creation du chapitre a echoue.',
-				title,
-				imagePath
+				title
+			});
+		}
+
+		const pages = savedPaths.map((imagePath, i) => ({
+			chapterId: chapterResult.value.id,
+			number: i + 1,
+			imagePath
+		}));
+
+		const pagesResult = await PageRepository.createMany(pages);
+
+		if (!pagesResult.ok) {
+			return fail(500, {
+				message: "La creation des planches a echoue.",
+				title
 			});
 		}
 

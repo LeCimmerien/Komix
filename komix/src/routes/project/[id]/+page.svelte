@@ -39,7 +39,7 @@
 	{:else}
 		<div class="grid gap-4">
 			{#each data.chapters as chapter (chapter.id)}
-				<div class="card bg-base-200 card-border">
+				<a href="/chapter/{chapter.id}" class="card bg-base-200 card-border transition-shadow hover:shadow-md">
 					<div class="card-body flex-row items-center justify-between">
 						<div>
 							<span class="text-base-content/50 mr-2 font-mono text-sm">#{chapter.number}</span>
@@ -51,7 +51,7 @@
 							</span>
 						{/if}
 					</div>
-				</div>
+				</a>
 			{/each}
 		</div>
 	{/if}

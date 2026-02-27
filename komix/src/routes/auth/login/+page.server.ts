@@ -17,7 +17,7 @@ export const actions = {
 
 		const token = await AuthenticationService.login(email, password);
 		if (!token.ok) {
-            return fail(401, { message: MESSAGES[token.error] });
+            return fail(401, { message: MESSAGES[token.error], email });
         }
 
 		cookies.set('session', token.value, {
