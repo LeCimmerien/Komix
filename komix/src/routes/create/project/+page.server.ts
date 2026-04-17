@@ -1,9 +1,7 @@
 import type { Actions } from './$types';
 import { fail, redirect } from '@sveltejs/kit';
-import { ProjectRepository, type Category } from '$lib/server/repositories/ProjectRepository';
-import { categoryEnum } from '$lib/server/data/database/schema';
-
-const validCategories: readonly string[] = categoryEnum.enumValues;
+import { ProjectRepository } from '$lib/server/repositories/ProjectRepository';
+import { createProjectSchema } from '$lib/schemas';
 
 export const actions = {
 	default: async ({ locals, request }) => {
@@ -11,34 +9,24 @@ export const actions = {
 			throw redirect(303, '/auth/login');
 		}
 
-		const data = await request.formData();
-		const name = (data.get('name') as string)?.trim();
-		const category = (data.get('category') as string)?.trim();
-		const description = (data.get('description') as string)?.trim();
+		const formData = Object.fromEntries(await request.formData());
 
-		if (!name || !category || !description) {
+		const parsed = createProjectSchema.safeParse(formData);
+		if (!parsed.success) {
 			return fail(400, {
-				message: 'Tous les champs sont requis.',
-				name: name ?? '',
-				category: category ?? '',
-				description: description ?? ''
+				errors: parsed.error.flatten().fieldErrors,
+				name: formData.name as string,
+				category: formData.category as string,
+				description: formData.description as string
 			});
 		}
 
-		if (!validCategories.includes(category)) {
-			return fail(400, {
-				message: 'Categorie invalide.',
-				name,
-				category: '',
-				description
-			});
-		}
-
-		const result = await ProjectRepository.create(locals.user.id, name, category as Category, description);
+		const { name, category, description } = parsed.data;
+		const result = await ProjectRepository.create(locals.user.id, name, category, description);
 
 		if (!result.ok) {
 			return fail(500, {
-				message: 'La création du projet a échoué.',
+				errors: { name: ['La création du projet a échoué.'] } as Record<string, string[] | undefined>,
 				name,
 				category,
 				description

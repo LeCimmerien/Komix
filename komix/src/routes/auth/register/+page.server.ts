@@ -1,33 +1,40 @@
 import type { Actions } from './$types';
 import { fail, redirect } from '@sveltejs/kit';
 import { AuthenticationService } from '$lib/server/services/AuthenticationService';
+import { registerSchema } from '$lib/schemas';
 
 export const actions = {
-	register: async ({cookies, request}) => {
-		const data = await request.formData();
-		const email = data.get('email') as string;
-		const username = data.get('username') as string;
-		const password = data.get('password') as string;
-		const passwordConfirm = data.get('password-confirm') as string;
-		console.log("TEST")
-		console.log(password, passwordConfirm)
-		if (password !== passwordConfirm) {
-			return fail(401, { message: "Password didn't match", email, username })
+	register: async ({ cookies, request }) => {
+		const formData = Object.fromEntries(await request.formData());
+
+		const parsed = registerSchema.safeParse(formData);
+		if (!parsed.success) {
+			return fail(400, {
+				errors: parsed.error.flatten().fieldErrors,
+				email: formData.email as string,
+				username: formData.username as string
+			});
 		}
 
-		const token = await AuthenticationService.register(email, username, password)
+		const { email, username, password } = parsed.data;
+		const token = await AuthenticationService.register(email, username, password);
 
-		if (!token.ok) return fail(401, { message: token.error, email, username })
+		if (!token.ok) {
+			return fail(401, {
+				errors: { email: ['Cette adresse email est déjà utilisée'] } as Record<string, string[] | undefined>,
+				email,
+				username
+			});
+		}
 
 		cookies.set('session', token.value, {
-            path: '/',
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 60 * 60 * 24 // 24 heures
-        });
-		
-		
+			path: '/',
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'strict',
+			maxAge: 60 * 60 * 24
+		});
+
 		throw redirect(303, '/');
-	},
+	}
 } satisfies Actions;

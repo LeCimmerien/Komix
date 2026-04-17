@@ -20,6 +20,9 @@
 					required
 					placeholder="Mon super comic"
 				/>
+				{#if form?.errors?.name}
+					<p class="text-error mt-1">{form.errors.name[0]}</p>
+				{/if}
 			</div>
 
 			<div class="mb-4">
@@ -38,6 +41,9 @@
 					<option value="thriller" selected={form?.category === 'thriller'}>Thriller</option>
 					<option value="fantastique" selected={form?.category === 'fantastique'}>Fantastique</option>
 				</select>
+				{#if form?.errors?.category}
+					<p class="text-error mt-1">{form.errors.category[0]}</p>
+				{/if}
 			</div>
 
 			<div class="mb-4">
@@ -49,11 +55,10 @@
 					required
 					rows="4"
 					placeholder="De quoi parle votre comic ?">{form?.description ?? ''}</textarea>
+				{#if form?.errors?.description}
+					<p class="text-error mt-1">{form.errors.description[0]}</p>
+				{/if}
 			</div>
-
-			{#if form?.message}
-				<p class="text-error mb-4">{form.message}</p>
-			{/if}
 
 			<button type="submit" class="btn btn-primary w-full">Creer</button>
 		</fieldset>

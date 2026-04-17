@@ -13,12 +13,18 @@
 					<label for="email">Email</label>
 					<input type="email" name="email" id="email" value={form?.email ?? ''} class="input validator" required placeholder="bruce@wayne.com"/>
 					<div class="validator-hint">Enter valid email address</div>
+					{#if form?.errors?.email}
+						<p class="error-message">{form.errors.email[0]}</p>
+					{/if}
 				</div>
 
 				<div>
 					<label for="username">Username</label>
 					<input type="text" name="username" id="username" value={form?.username ?? ''} class="input validator" required placeholder="Batman"/>
 					<div class="validator-hint">Enter valid username</div>
+					{#if form?.errors?.username}
+						<p class="error-message">{form.errors.username[0]}</p>
+					{/if}
 				</div>
 
 				<div>
@@ -37,6 +43,9 @@
 						<br/>At least one lowercase letter
 						<br/>At least one uppercase letter
 					</p>
+					{#if form?.errors?.password}
+						<p class="error-message">{form.errors.password[0]}</p>
+					{/if}
 				</div>
 
 				<div>
@@ -55,10 +64,10 @@
 						<br/>At least one lowercase letter
 						<br/>At least one uppercase letter
 					</p>
+					{#if form?.errors?.['password-confirm']}
+						<p class="error-message">{form.errors['password-confirm'][0]}</p>
+					{/if}
 				</div>
-				{#if form?.message}
-					<p class="error-message">{form.message}</p>
-				{/if}
 
 				<button type="submit">Valider</button>
 				</fieldset>

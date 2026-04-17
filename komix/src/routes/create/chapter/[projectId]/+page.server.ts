@@ -4,6 +4,7 @@ import { ProjectRepository } from '$lib/server/repositories/ProjectRepository';
 import { ChapterRepository } from '$lib/server/repositories/ChapterRepository';
 import { PageRepository } from '$lib/server/repositories/PageRepository';
 import { storage } from '$lib/server/storage';
+import { createChapterSchema } from '$lib/schemas';
 import sharp from 'sharp';
 import { randomUUID } from 'node:crypto';
 
@@ -27,19 +28,23 @@ export const actions = {
 		}
 
 		const data = await request.formData();
-		const title = (data.get('title') as string)?.trim();
 		const files = data.getAll('files') as File[];
 
-		if (!title) {
+		// Validation des champs texte via Zod
+		const parsed = createChapterSchema.safeParse({ title: data.get('title') });
+		if (!parsed.success) {
 			return fail(400, {
-				message: 'Le titre est requis.',
-				title: title ?? ''
+				errors: parsed.error.flatten().fieldErrors,
+				title: data.get('title') as string
 			});
 		}
 
+		const { title } = parsed.data;
+
+		// Validation des fichiers (non couverte par Zod — types File natifs)
 		if (files.length === 0 || (files.length === 1 && files[0].size === 0)) {
 			return fail(400, {
-				message: 'Au moins une planche est requise.',
+				errors: { files: ['Au moins une planche est requise.'] },
 				title
 			});
 		}
@@ -47,13 +52,13 @@ export const actions = {
 		for (const file of files) {
 			if (!ALLOWED_TYPES.includes(file.type)) {
 				return fail(400, {
-					message: `Format non supporte: ${file.name}. Utilisez PNG, JPEG ou WebP.`,
+					errors: { files: [`Format non supporté : ${file.name}. Utilisez PNG, JPEG ou WebP.`] },
 					title
 				});
 			}
 			if (file.size > MAX_FILE_SIZE) {
 				return fail(400, {
-					message: `Fichier trop volumineux: ${file.name}. Maximum 10 Mo.`,
+					errors: { files: [`Fichier trop volumineux : ${file.name}. Maximum 10 Mo.`] },
 					title
 				});
 			}
