@@ -1,5 +1,5 @@
 import { failure, success, type Result } from '$lib/utils/result';
-import keystore from '$lib/server/data/keystore';
+import keystore from '$lib/server/infra/keystore';
 
 export enum SessionError {
 	NOT_FOUND,

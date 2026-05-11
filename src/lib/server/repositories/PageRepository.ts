@@ -1,6 +1,6 @@
 import { failure, success, type Result } from '$lib/utils/result';
-import db from '$lib/server/data/database';
-import { page } from '$lib/server/data/database/schema';
+import db from '$lib/server/infra/database';
+import { page } from '$lib/server/infra/database/schema';
 import { eq, and, isNull, asc } from 'drizzle-orm';
 
 export interface Page {

@@ -1,6 +1,6 @@
 import { failure, success, type Result } from "$lib/utils/result";
-import db from '$lib/server/data/database';
-import { project, user, type categoryEnum } from '$lib/server/data/database/schema';
+import db from '$lib/server/infra/database';
+import { project, user, type categoryEnum } from '$lib/server/infra/database/schema';
 import { eq, and, isNull, desc } from "drizzle-orm";
 
 export type Category = (typeof categoryEnum.enumValues)[number];

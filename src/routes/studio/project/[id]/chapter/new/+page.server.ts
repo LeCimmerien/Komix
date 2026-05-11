@@ -3,7 +3,7 @@ import { fail, redirect, error } from '@sveltejs/kit';
 import { ProjectRepository } from '$lib/server/repositories/ProjectRepository';
 import { ChapterRepository } from '$lib/server/repositories/ChapterRepository';
 import { PageRepository } from '$lib/server/repositories/PageRepository';
-import { storage } from '$lib/server/storage';
+import { storage } from '$lib/server/infra/storage';
 import { createChapterSchema } from '$lib/schemas';
 import sharp from 'sharp';
 import { randomUUID } from 'node:crypto';

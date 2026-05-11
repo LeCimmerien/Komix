@@ -16,7 +16,7 @@ const mockInnerJoin = vi.fn().mockReturnValue({ where: mockJoinWhere });
 const mockJoinFrom = vi.fn().mockReturnValue({ innerJoin: mockInnerJoin });
 const mockJoinSelect = vi.fn().mockReturnValue({ from: mockJoinFrom });
 
-vi.mock('$lib/server/data/database', () => ({
+vi.mock('$lib/server/infra/database', () => ({
 	default: {
 		insert: (...args: any[]) => mockInsert(...args),
 		delete: (...args: any[]) => mockDelete(...args),
@@ -24,7 +24,7 @@ vi.mock('$lib/server/data/database', () => ({
 	}
 }));
 
-vi.mock('$lib/server/data/database/schema', () => ({
+vi.mock('$lib/server/infra/database/schema', () => ({
 	userSubscriptions: {
 		userId: 'userId',
 		projectId: 'projectId'
