@@ -1,6 +1,6 @@
 import { failure, success, type Result } from "$lib/utils/result";
-import db from '$lib/server/data/database';
-import { userSubscriptions, project } from '$lib/server/data/database/schema';
+import db from '$lib/server/infra/database';
+import { userSubscriptions, project } from '$lib/server/infra/database/schema';
 import { eq, and, count } from "drizzle-orm";
 import type { Project } from "./ProjectRepository";
 

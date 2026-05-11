@@ -15,7 +15,7 @@ const mockUpdateWhere = vi.fn().mockReturnValue({ returning: mockUpdateReturning
 const mockUpdateSet = vi.fn().mockReturnValue({ where: mockUpdateWhere });
 const mockUpdate = vi.fn().mockReturnValue({ set: mockUpdateSet });
 
-vi.mock('$lib/server/data/database', () => ({
+vi.mock('$lib/server/infra/database', () => ({
 	default: {
 		select: (...args: any[]) => mockSelect(...args),
 		insert: (...args: any[]) => mockInsert(...args),
@@ -23,7 +23,7 @@ vi.mock('$lib/server/data/database', () => ({
 	}
 }));
 
-vi.mock('$lib/server/data/database/schema', () => ({
+vi.mock('$lib/server/infra/database/schema', () => ({
 	chapter: {
 		id: 'id',
 		projectId: 'projectId',

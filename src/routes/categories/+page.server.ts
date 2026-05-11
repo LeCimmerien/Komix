@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { ProjectRepository } from '$lib/server/repositories/ProjectRepository';
-import { categoryEnum } from '$lib/server/data/database/schema';
+import { categoryEnum } from '$lib/server/infra/database/schema';
 
 export const load: PageServerLoad = async () => {
 	const projects = await ProjectRepository.findAll();

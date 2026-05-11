@@ -25,6 +25,7 @@ export const project = pgTable('project', {
     name: char({length: 50}).notNull(),
     category: categoryEnum().notNull(),
     description: text().notNull(),
+    thumbnailPath: text(),
     createdAt: timestamp({ mode: "date" }).defaultNow(),
     deletedAt: timestamp({ mode: "date" })
 })

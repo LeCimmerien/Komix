@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { categoryEnum } from '$lib/server/data/database/schema';
+import { categoryEnum } from '$lib/server/infra/database/schema';
 
 export const createProjectSchema = z.object({
 	name: z

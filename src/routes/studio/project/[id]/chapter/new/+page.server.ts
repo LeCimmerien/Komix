@@ -3,7 +3,7 @@ import { fail, redirect, error } from '@sveltejs/kit';
 import { ProjectRepository } from '$lib/server/repositories/ProjectRepository';
 import { ChapterRepository } from '$lib/server/repositories/ChapterRepository';
 import { PageRepository } from '$lib/server/repositories/PageRepository';
-import { storage } from '$lib/server/storage';
+import { storage } from '$lib/server/infra/storage';
 import { createChapterSchema } from '$lib/schemas';
 import sharp from 'sharp';
 import { randomUUID } from 'node:crypto';
@@ -60,6 +60,22 @@ export const actions = {
 			}
 		}
 
+		const thumbnail = data.get('thumbnail') as File | null;
+		if (thumbnail && thumbnail.size > 0) {
+			if (!ALLOWED_TYPES.includes(thumbnail.type)) {
+				return fail(400, {
+					errors: { thumbnail: ['Format non supporté. Utilisez PNG, JPEG ou WebP.'] } as Record<string, string[] | undefined>,
+					title
+				});
+			}
+			if (thumbnail.size > MAX_FILE_SIZE) {
+				return fail(400, {
+					errors: { thumbnail: ['Fichier trop volumineux. Maximum 10 Mo.'] } as Record<string, string[] | undefined>,
+					title
+				});
+			}
+		}
+
 		const chapters = await ChapterRepository.findAllByProject(params.id);
 		const number = chapters.length + 1;
 
@@ -68,18 +84,28 @@ export const actions = {
 			for (const file of files) {
 				const buffer = Buffer.from(await file.arrayBuffer());
 				const webpBuffer = await sharp(buffer).webp({ quality: 80 }).toBuffer();
-				const filename = `${params.id}/${randomUUID()}.webp`;
+				const filename = `chapters/${params.id}/${randomUUID()}.webp`;
 				const path = await storage.save(filename, webpBuffer);
 				savedPaths.push(path);
 			}
 		} catch {
-			for (const path of savedPaths) {
-				await storage.delete(path.replace('/uploads/', ''));
-			}
+			for (const path of savedPaths) await storage.delete(path);
 			return fail(500, { message: 'Erreur lors du traitement des images.', title });
 		}
 
-		const chapterResult = await ChapterRepository.create(params.id, title, number, savedPaths[0]);
+		let thumbnailPath = savedPaths[0];
+		if (thumbnail && thumbnail.size > 0) {
+			try {
+				const buffer = Buffer.from(await thumbnail.arrayBuffer());
+				const webpBuffer = await sharp(buffer).webp({ quality: 85 }).toBuffer();
+				thumbnailPath = await storage.save(`thumbnails/chapters/${randomUUID()}.webp`, webpBuffer);
+			} catch {
+				for (const path of savedPaths) await storage.delete(path);
+				return fail(500, { message: 'Erreur lors du traitement de la miniature.', title });
+			}
+		}
+
+		const chapterResult = await ChapterRepository.create(params.id, title, number, thumbnailPath);
 		if (!chapterResult.ok) {
 			return fail(500, { message: 'La création du chapitre a échoué.', title });
 		}
