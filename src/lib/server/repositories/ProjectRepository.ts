@@ -11,6 +11,7 @@ export interface Project {
     name: string;
     category: Category;
     description: string;
+    thumbnailPath: string | null;
     createdAt: Date | null;
 }
 
@@ -31,6 +32,7 @@ export class ProjectRepository {
             name: project.name,
             category: project.category,
             description: project.description,
+            thumbnailPath: project.thumbnailPath,
             createdAt: project.createdAt,
         }).from(project).where(and(eq(project.id, id), isNull(project.deletedAt))).limit(1)
 
@@ -82,13 +84,14 @@ export class ProjectRepository {
             .where(and(eq(project.author, authorId), isNull(project.deletedAt)))
     }
 
-    static async create(authorId: string, name: string, category: Category, description: string): Promise<Result<Project, ProjectError>> {
+    static async create(authorId: string, name: string, category: Category, description: string, thumbnailPath?: string): Promise<Result<Project, ProjectError>> {
         try {
             const [p] = await db.insert(project).values({
                 author: authorId,
                 name,
                 category,
-                description
+                description,
+                thumbnailPath
             }).returning({
                 id: project.id,
                 author: project.author,
@@ -105,7 +108,7 @@ export class ProjectRepository {
         }
     }
 
-    static async update(id: string, data: { name?: string; category?: Category; description?: string }): Promise<Result<Project, ProjectError>> {
+    static async update(id: string, data: { name?: string; category?: Category; description?: string; thumbnailPath?: string }): Promise<Result<Project, ProjectError>> {
         const [p] = await db.update(project)
             .set(data)
             .where(and(eq(project.id, id), isNull(project.deletedAt)))

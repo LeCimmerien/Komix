@@ -14,6 +14,10 @@
 	]
 
 	let selectedGenre = $state(form?.category ?? '')
+	let thumbnailFile = $state<File | null>(null)
+	let thumbnailPreview = $derived(thumbnailFile ? URL.createObjectURL(thumbnailFile) : null)
+
+	$effect(() => () => { if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview) })
 </script>
 
 <div class="studio-page">
@@ -29,7 +33,7 @@
 		</div>
 	</div>
 
-	<form method="POST" use:enhance class="create-form">
+	<form method="POST" enctype="multipart/form-data" use:enhance class="create-form">
 		<!-- Titre -->
 		<div class="kx-field-group">
 			<label class="kx-eyebrow" for="name">Titre de la série</label>
@@ -81,6 +85,37 @@
 			>{form?.description ?? ''}</textarea>
 			{#if form?.errors?.description}
 				<span class="kx-field-error">{form.errors.description[0]}</span>
+			{/if}
+		</div>
+
+		<!-- Miniature -->
+		<div class="kx-field-group">
+			<span class="kx-eyebrow">Miniature <span style="opacity:.5">(optionnel)</span></span>
+			<div class="thumbnail-zone">
+				{#if thumbnailPreview}
+					<div class="thumbnail-preview">
+						<img src={thumbnailPreview} alt="Miniature" />
+						<button type="button" class="thumbnail-remove" onclick={() => thumbnailFile = null} aria-label="Supprimer">✕</button>
+					</div>
+				{:else}
+					<label for="thumbnail" class="thumbnail-placeholder">
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>
+						</svg>
+						<span class="kx-mono" style="font-size: 10px; letter-spacing: .1em; margin-top: 6px;">CHOISIR UNE IMAGE</span>
+					</label>
+				{/if}
+				<input
+					type="file"
+					name="thumbnail"
+					id="thumbnail"
+					accept="image/png,image/jpeg,image/webp"
+					style="display:none"
+					onchange={(e) => { thumbnailFile = (e.currentTarget as HTMLInputElement).files?.[0] ?? null }}
+				/>
+			</div>
+			{#if form?.errors?.thumbnail}
+				<span class="kx-field-error">{form.errors.thumbnail[0]}</span>
 			{/if}
 		</div>
 
@@ -150,6 +185,54 @@
 		border-color: var(--gc, var(--kx-violet));
 		color: var(--gc, var(--kx-violet));
 		background: color-mix(in srgb, var(--gc, var(--kx-violet)) 12%, transparent);
+	}
+	.thumbnail-zone {
+		width: 140px;
+	}
+	.thumbnail-placeholder {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		width: 140px;
+		aspect-ratio: 2/3;
+		border: 2px dashed var(--kx-line-strong);
+		border-radius: 10px;
+		background: var(--kx-base-200);
+		color: var(--kx-fg-dim);
+		cursor: pointer;
+		transition: border-color 0.15s;
+	}
+	.thumbnail-placeholder:hover {
+		border-color: var(--kx-violet);
+		color: var(--kx-violet);
+	}
+	.thumbnail-preview {
+		position: relative;
+		width: 140px;
+	}
+	.thumbnail-preview img {
+		width: 100%;
+		aspect-ratio: 2/3;
+		object-fit: cover;
+		border-radius: 10px;
+		border: 1px solid var(--kx-line);
+	}
+	.thumbnail-remove {
+		position: absolute;
+		top: 6px;
+		right: 6px;
+		width: 22px;
+		height: 22px;
+		border-radius: 50%;
+		background: rgba(0,0,0,.6);
+		border: none;
+		color: white;
+		font-size: 10px;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 	@media (max-width: 640px) {
 		.studio-page {
