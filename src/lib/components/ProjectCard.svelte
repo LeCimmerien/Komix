@@ -38,27 +38,25 @@
 </script>
 
 <a href="/project/{project.id}" class="kx-project-card">
-	<!-- CSS gradient cover -->
 	<div
 		class="kx-cover"
 		style="background: radial-gradient(120% 80% at 70% 0%, {tone[0]} 0%, {tone[1]} 100%);"
 	>
-		<div class="kx-cover-stripes"></div>
-		<!-- halftone burst -->
-		<div
-			style="position: absolute; inset: 0; color: {color}; opacity: 0.2;
-      background-image: radial-gradient(circle, currentColor 1px, transparent 1.4px);
-      background-size: 6px 6px;
-      mask-image: radial-gradient(circle at 80% 20%, #000 0%, #000 30%, transparent 60%);
-      -webkit-mask-image: radial-gradient(circle at 80% 20%, #000 0%, #000 30%, transparent 60%);"
-		></div>
+		{#if project.thumbnailPath}
+			<img src={project.thumbnailPath} alt={project.name} class="cover-thumb" />
+		{:else}
+			<div class="kx-cover-stripes"></div>
+			<div
+				style="position: absolute; inset: 0; color: {color}; opacity: 0.2;
+	      background-image: radial-gradient(circle, currentColor 1px, transparent 1.4px);
+	      background-size: 6px 6px;
+	      mask-image: radial-gradient(circle at 80% 20%, #000 0%, #000 30%, transparent 60%);
+	      -webkit-mask-image: radial-gradient(circle at 80% 20%, #000 0%, #000 30%, transparent 60%);"
+			></div>
+		{/if}
 		<div class="kx-cover-fade"></div>
-		<!-- genre badge -->
 		<div class="kx-cover-tag">
-			<span
-				class="kx-badge"
-				style="background: {color}22; border-color: {color}55; color: {color};"
-			>
+			<span class="kx-badge" style="background: {color}22; border-color: {color}55; color: {color};">
 				{label}
 			</span>
 		</div>
@@ -84,6 +82,13 @@
 	.kx-project-card:hover :global(.kx-cover) {
 		transform: translateY(-3px);
 		box-shadow: 0 18px 36px -12px rgba(0, 0, 0, 0.7);
+	}
+	.cover-thumb {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
 	:global(.kx-cover) {
 		transition:
