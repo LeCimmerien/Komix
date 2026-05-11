@@ -1,9 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 @plugin "daisyui";
-
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 /* ── Komix Design System ───────────────────────────────── */
 :root {
@@ -339,6 +338,124 @@ body {
 	padding: 16px;
 }
 
+/* ── Halftone ── */
+.kx-halftone {
+	background-image: radial-gradient(circle, currentColor 1px, transparent 1.4px);
+	background-size: 6px 6px;
+	opacity: 0.18;
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+.kx-halftone-lg {
+	background-image: radial-gradient(circle, currentColor 1.5px, transparent 2px);
+	background-size: 9px 9px;
+	opacity: 0.18;
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+
+/* ── Bottom Nav (mobile) ── */
+.kx-bottomnav {
+	display: flex;
+	align-items: stretch;
+	height: 64px;
+	border-top: 1px solid var(--kx-line);
+	background: rgba(29, 35, 42, 0.92);
+	backdrop-filter: blur(12px) saturate(160%);
+	-webkit-backdrop-filter: blur(12px) saturate(160%);
+	position: sticky;
+	bottom: 0;
+	z-index: 4;
+	flex-shrink: 0;
+}
+.kx-bottomnav-item {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	font-family: var(--f-mono);
+	font-size: 9px;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--kx-fg-mute);
+	background: none;
+	border: 0;
+	cursor: pointer;
+	text-decoration: none;
+	transition: color 0.15s;
+}
+.kx-bottomnav-item.active {
+	color: var(--kx-fg);
+}
+.kx-bottomnav-item.active .kx-nav-dot {
+	background: var(--kx-violet);
+}
+.kx-nav-dot {
+	width: 4px;
+	height: 4px;
+	border-radius: 50%;
+	background: transparent;
+}
+
+/* ── Desktop topbar ── */
+.kxd-topbar {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	height: 64px;
+	padding: 0 28px;
+	border-bottom: 1px solid var(--kx-line);
+	background: rgba(29, 35, 42, 0.85);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	position: sticky;
+	top: 0;
+	z-index: 5;
+	flex-shrink: 0;
+}
+.kxd-search {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex: 1;
+	max-width: 560px;
+	padding: 8px 14px;
+	background: var(--kx-base-300);
+	border: 1px solid var(--kx-line-strong);
+	border-radius: 10px;
+}
+.kxd-search input {
+	flex: 1;
+	background: transparent;
+	border: 0;
+	outline: none;
+	color: var(--kx-fg);
+	font-family: var(--f-body);
+	font-size: 14px;
+}
+.kxd-search input::placeholder {
+	color: var(--kx-fg-dim);
+}
+.kxd-kbd {
+	font-size: 11px;
+	color: var(--kx-fg-dim);
+	border: 1px solid var(--kx-line-strong);
+	border-radius: 4px;
+	padding: 2px 6px;
+	font-family: var(--f-mono);
+	white-space: nowrap;
+}
+.kxd-top-actions {
+	margin-left: auto;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
 /* ── Animations ── */
 @keyframes kx-pop {
 	0% {
@@ -354,6 +471,14 @@ body {
 		opacity: 1;
 	}
 }
+@keyframes kx-pop-in {
+	from { transform: scale(0.94); opacity: 0; }
+	to { transform: scale(1); opacity: 1; }
+}
+@keyframes kx-slide-in {
+	from { transform: translateX(8px); opacity: 0; }
+	to { transform: translateX(0); opacity: 1; }
+}
 @keyframes kx-fade-in {
 	from {
 		opacity: 0;
@@ -364,6 +489,12 @@ body {
 }
 .kx-fade-in {
 	animation: kx-fade-in 0.25s ease-out;
+}
+.kx-pop {
+	animation: kx-pop-in 0.35s cubic-bezier(0.2, 0.7, 0.3, 1.2);
+}
+.kx-slide-in {
+	animation: kx-slide-in 0.3s cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
 /* ── Skeleton ── */
@@ -542,6 +673,12 @@ body {
 	padding: 8px;
 	background: var(--kx-base-200);
 	border-radius: 10px;
+	text-decoration: none;
+	color: inherit;
+	transition: background 0.15s;
+}
+.kxd-side-user:hover {
+	background: var(--kx-base-100);
 }
 
 /* ── Desktop page chrome ── */

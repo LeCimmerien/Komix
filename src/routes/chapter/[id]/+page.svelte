@@ -10,6 +10,7 @@
 	})
 
 	let index = $state(0)
+	$effect(() => { data.chapter.id; index = 0 })
 	const total = $derived(1 + spreads.length)
 	const hasPrev = $derived(index > 0)
 	const hasNext = $derived(index < total - 1)

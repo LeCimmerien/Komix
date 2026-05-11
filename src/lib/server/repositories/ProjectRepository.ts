@@ -47,6 +47,7 @@ export class ProjectRepository {
             name: project.name,
             category: project.category,
             description: project.description,
+            thumbnailPath: project.thumbnailPath,
             createdAt: project.createdAt,
         }).from(project)
             .innerJoin(user, eq(project.author, user.id))
@@ -62,6 +63,7 @@ export class ProjectRepository {
             name: project.name,
             category: project.category,
             description: project.description,
+            thumbnailPath: project.thumbnailPath,
             createdAt: project.createdAt,
         }).from(project)
             .innerJoin(user, eq(project.author, user.id))
@@ -78,6 +80,7 @@ export class ProjectRepository {
             name: project.name,
             category: project.category,
             description: project.description,
+            thumbnailPath: project.thumbnailPath,
             createdAt: project.createdAt,
         }).from(project)
             .innerJoin(user, eq(project.author, user.id))
