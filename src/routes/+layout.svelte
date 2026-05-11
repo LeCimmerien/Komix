@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import { authContext } from '$lib/stores/auth.svelte';
@@ -8,10 +9,14 @@
 	$effect(() => {
         authContext.set(data.user);
     });
+
+	const hideNavbar = $derived(page.route.id?.startsWith('/chapter/'));
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
-<Navbar user={data.user}/>
+{#if !hideNavbar}
+	<Navbar user={data.user}/>
+{/if}
 
 {@render children()}

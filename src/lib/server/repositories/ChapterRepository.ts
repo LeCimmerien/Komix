@@ -1,7 +1,7 @@
 import { failure, success, type Result } from "$lib/utils/result";
 import db from '$lib/server/infra/database';
 import { chapter, project } from '$lib/server/infra/database/schema';
-import { eq, and, isNull, desc } from "drizzle-orm";
+import { eq, and, isNull, desc, asc, lt, gt } from "drizzle-orm";
 
 export interface Chapter {
     id: string;
@@ -98,6 +98,28 @@ export class ChapterRepository {
             });
 
         return c ? success(c) : failure(ChapterError.NOT_FOUND);
+    }
+
+    static async findSiblings(projectId: string, number: number): Promise<{ prev: Chapter | null; next: Chapter | null }> {
+        const cols = {
+            id: chapter.id,
+            projectId: chapter.projectId,
+            title: chapter.title,
+            number: chapter.number,
+            imagePath: chapter.imagePath,
+            createdAt: chapter.createdAt,
+        };
+        const base = and(eq(chapter.projectId, projectId), isNull(chapter.deletedAt));
+
+        const [prev = null] = await db.select(cols).from(chapter)
+            .where(and(base, lt(chapter.number, number)))
+            .orderBy(desc(chapter.number)).limit(1);
+
+        const [next = null] = await db.select(cols).from(chapter)
+            .where(and(base, gt(chapter.number, number)))
+            .orderBy(asc(chapter.number)).limit(1);
+
+        return { prev, next };
     }
 
     static async delete(id: string): Promise<Result<void, ChapterError>> {

@@ -12,14 +12,13 @@ export const load: PageServerLoad = async ({ params }) => {
 	}
 
 	const chapter = chapterResult.value;
-	const pages = await PageRepository.findAllByChapter(chapter.id);
+	const [pages, { prev, next }, projectResult] = await Promise.all([
+		PageRepository.findAllByChapter(chapter.id),
+		ChapterRepository.findSiblings(chapter.projectId, chapter.number),
+		ProjectRepository.findById(chapter.projectId),
+	]);
 
-	const projectResult = await ProjectRepository.findById(chapter.projectId);
 	const projectName = projectResult.ok ? projectResult.value.name : '';
 
-	return {
-		chapter,
-		pages,
-		projectName
-	};
+	return { chapter, pages, projectName, prev, next };
 };

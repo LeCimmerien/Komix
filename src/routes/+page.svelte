@@ -51,7 +51,7 @@
 	<!-- CTAs -->
 	<div class="home-ctas">
 		<a href="/discover" class="kx-btn kx-btn-primary">Explorer les séries</a>
-		<a href="/auth/register" class="kx-btn kx-btn-ghost">Devenir artiste</a>
+		<a href={data.user ? '/studio' : '/auth/register?role=artist'} class="kx-btn kx-btn-ghost">Devenir artiste</a>
 	</div>
 
 	<!-- Artist CTA card -->
@@ -62,7 +62,7 @@
 		<div class="kx-mute" style="font-size: 13px; margin-bottom: 16px;">
 			Outils simples, communauté indé, fil d'actu pour tes lecteurs. Aucun algo.
 		</div>
-		<a href="/auth/register" class="kx-btn kx-btn-secondary">Devenir artiste</a>
+		<a href={data.user ? '/studio' : '/auth/register'} class="kx-btn kx-btn-secondary">Devenir artiste</a>
 	</div>
 </div>
 

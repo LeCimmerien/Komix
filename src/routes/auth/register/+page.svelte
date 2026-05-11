@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { page } from '$app/state'
 	const { form } = $props()
-	let role = $state('reader')
+	let role = $state(page.url.searchParams.get('role') === 'artist' ? 'artist' : 'reader')
 </script>
 
 <div class="auth-shell">
