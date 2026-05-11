@@ -3,26 +3,41 @@
 
 	const { data, form } = $props()
 
-	let files = $state<FileList | null>(null)
+	interface PageItem { file: File; url: string; key: number }
+
+	let counter = 0
+	let pages = $state<PageItem[]>([])
 	let submitting = $state(false)
 	let thumbnailFile = $state<File | null>(null)
 	let thumbnailPreview = $derived(thumbnailFile ? URL.createObjectURL(thumbnailFile) : null)
 
-	$effect(() => () => { if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview) })
+	$effect(() => () => {
+		pages.forEach((p) => URL.revokeObjectURL(p.url))
+		if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview)
+	})
 
-	const previews = $derived.by(() => {
-		const urls: { name: string; url: string }[] = []
-		if (files) {
-			for (const file of files) {
-				urls.push({ name: file.name, url: URL.createObjectURL(file) })
-			}
+	function onFilesChange(e: Event) {
+		const input = e.currentTarget as HTMLInputElement
+		for (const file of Array.from(input.files ?? [])) {
+			pages.push({ file, url: URL.createObjectURL(file), key: counter++ })
 		}
-		return urls
-	})
+		input.value = ''
+	}
 
-	$effect(() => {
-		return () => previews.forEach((u) => URL.revokeObjectURL(u.url))
-	})
+	function moveUp(i: number) {
+		if (i === 0) return
+		;[pages[i - 1], pages[i]] = [pages[i], pages[i - 1]]
+	}
+
+	function moveDown(i: number) {
+		if (i >= pages.length - 1) return
+		;[pages[i], pages[i + 1]] = [pages[i + 1], pages[i]]
+	}
+
+	function removePage(i: number) {
+		URL.revokeObjectURL(pages[i].url)
+		pages.splice(i, 1)
+	}
 </script>
 
 <div class="studio-page">
@@ -42,7 +57,9 @@
 		method="POST"
 		enctype="multipart/form-data"
 		class="create-form"
-		use:enhance={() => {
+		use:enhance={({ formData }) => {
+			formData.delete('files')
+			for (const p of pages) formData.append('files', p.file)
 			submitting = true
 			return async ({ update }) => {
 				submitting = false
@@ -70,44 +87,66 @@
 
 		<!-- Planches -->
 		<div class="kx-field-group">
-			<label class="kx-eyebrow" for="files">Planches</label>
-			<div class="dropzone">
-				<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--kx-fg-dim); margin-bottom: 8px;">
+			<span class="kx-eyebrow">Planches</span>
+
+			<label for="files" class="dropzone" class:disabled={submitting}>
+				<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--kx-fg-dim); margin-bottom: 8px;">
 					<path d="M12 3v12m0-12l-4 4m4-4l4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
 				</svg>
-				<div class="kx-mono" style="font-size: 11px; letter-spacing: 0.1em; color: var(--kx-fg-dim); margin-bottom: 6px;">GLISSER-DÉPOSER</div>
-				<label for="files" class="kx-btn kx-btn-ghost kx-btn-sm" style="cursor: pointer;">
-					Choisir des fichiers
-				</label>
+				<div class="kx-mono" style="font-size: 11px; letter-spacing: 0.1em; color: var(--kx-fg-dim); margin-bottom: 4px;">AJOUTER DES PLANCHES</div>
+				<div class="kx-mono" style="font-size: 10px; color: var(--kx-fg-dim);">PNG, JPEG ou WebP · max 10 Mo par fichier</div>
 				<input
 					type="file"
-					name="files"
 					id="files"
 					multiple
 					accept="image/png,image/jpeg,image/webp"
-					required
-					bind:files
 					disabled={submitting}
 					style="display: none;"
+					onchange={onFilesChange}
 				/>
-				<div class="kx-mono" style="font-size: 10px; color: var(--kx-fg-dim); margin-top: 8px;">
-					PNG, JPEG ou WebP · max 10 Mo par fichier
-				</div>
-			</div>
+			</label>
+
 			{#if form?.errors?.files}
 				<span class="kx-field-error">{form.errors.files[0]}</span>
 			{/if}
 		</div>
 
-		<!-- Previews -->
-		{#if previews.length > 0}
+		<!-- Ordre des planches -->
+		{#if pages.length > 0}
 			<div class="kx-field-group">
-				<span class="kx-eyebrow">Aperçu — {previews.length} planche{previews.length > 1 ? 's' : ''}</span>
-				<div class="preview-strip">
-					{#each previews as preview, i (preview.name)}
-						<div class="preview-thumb">
-							<img src={preview.url} alt="Planche {i + 1}" />
-							<span class="preview-num kx-mono">{i + 1}</span>
+				<span class="kx-eyebrow">{pages.length} planche{pages.length > 1 ? 's' : ''} — glisser pour réordonner</span>
+				<div class="pages-list">
+					{#each pages as p, i (p.key)}
+						<div class="page-item">
+							<div class="page-order">
+								<button
+									type="button"
+									class="order-btn"
+									onclick={() => moveUp(i)}
+									disabled={i === 0 || submitting}
+									aria-label="Monter"
+								>
+									<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+								</button>
+								<span class="page-num kx-mono">{i + 1}</span>
+								<button
+									type="button"
+									class="order-btn"
+									onclick={() => moveDown(i)}
+									disabled={i === pages.length - 1 || submitting}
+									aria-label="Descendre"
+								>
+									<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+								</button>
+							</div>
+							<img src={p.url} alt="Planche {i + 1}" class="page-thumb" />
+							<button
+								type="button"
+								class="page-remove"
+								onclick={() => removePage(i)}
+								disabled={submitting}
+								aria-label="Supprimer"
+							>✕</button>
 						</div>
 					{/each}
 				</div>
@@ -159,7 +198,7 @@
 			type="submit"
 			class="kx-btn kx-btn-secondary"
 			style="align-self: flex-start; min-width: 160px;"
-			disabled={submitting}
+			disabled={submitting || pages.length === 0}
 		>
 			{#if submitting}
 				<span class="kx-skel" style="width: 14px; height: 14px; border-radius: 7px;"></span>
@@ -211,39 +250,90 @@
 	.dropzone {
 		border: 2px dashed var(--kx-line-strong);
 		border-radius: 12px;
-		padding: 32px;
+		padding: 28px;
 		text-align: center;
 		background: var(--kx-base-200);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		cursor: pointer;
+		transition: border-color 0.15s;
 	}
-	.preview-strip {
+	.dropzone:hover:not(.disabled) {
+		border-color: var(--kx-violet);
+	}
+	.dropzone.disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+	.pages-list {
 		display: flex;
-		gap: 10px;
 		flex-wrap: wrap;
+		gap: 10px;
 	}
-	.preview-thumb {
+	.page-item {
 		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 4px;
 		width: 90px;
 	}
-	.preview-thumb img {
-		width: 100%;
+	.page-order {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+	}
+	.page-num {
+		font-size: 11px;
+		letter-spacing: 0.08em;
+		color: var(--kx-fg-mute);
+		min-width: 20px;
+		text-align: center;
+	}
+	.order-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 20px;
+		height: 20px;
+		background: var(--kx-base-300);
+		border: 1px solid var(--kx-line);
+		border-radius: 4px;
+		color: var(--kx-fg-mute);
+		cursor: pointer;
+		transition: all 0.1s;
+	}
+	.order-btn:hover:not(:disabled) {
+		border-color: var(--kx-violet);
+		color: var(--kx-violet);
+	}
+	.order-btn:disabled {
+		opacity: 0.25;
+		cursor: not-allowed;
+	}
+	.page-thumb {
+		width: 90px;
 		aspect-ratio: 3/4;
 		object-fit: cover;
 		border-radius: 6px;
 		border: 1px solid var(--kx-line);
 	}
-	.preview-num {
+	.page-remove {
 		position: absolute;
-		bottom: 6px;
-		left: 6px;
+		top: 26px;
+		right: 4px;
+		width: 18px;
+		height: 18px;
+		border-radius: 50%;
+		background: rgba(0, 0, 0, 0.6);
+		border: none;
+		color: white;
 		font-size: 9px;
-		letter-spacing: 0.1em;
-		color: rgba(255, 255, 255, 0.8);
-		background: rgba(0, 0, 0, 0.5);
-		padding: 2px 5px;
-		border-radius: 3px;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 	.thumbnail-zone {
 		width: 120px;
@@ -284,7 +374,7 @@
 		width: 22px;
 		height: 22px;
 		border-radius: 50%;
-		background: rgba(0,0,0,.6);
+		background: rgba(0, 0, 0, 0.6);
 		border: none;
 		color: white;
 		font-size: 10px;
