@@ -27,8 +27,7 @@ docker-compose.override.yml
 
 # ide
 .DS_Store
-.vscode/settings.json
-.vscode/extensions.json
+.vscode/
 
 # logs
 logs/
