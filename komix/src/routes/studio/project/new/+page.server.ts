@@ -5,10 +5,6 @@ import { createProjectSchema } from '$lib/schemas';
 
 export const actions = {
 	default: async ({ locals, request }) => {
-		if (!locals.user) {
-			throw redirect(303, '/auth/login');
-		}
-
 		const formData = Object.fromEntries(await request.formData());
 
 		const parsed = createProjectSchema.safeParse(formData);
@@ -22,7 +18,7 @@ export const actions = {
 		}
 
 		const { name, category, description } = parsed.data;
-		const result = await ProjectRepository.create(locals.user.id, name, category, description);
+		const result = await ProjectRepository.create(locals.user!.id, name, category, description);
 
 		if (!result.ok) {
 			return fail(500, {
@@ -33,6 +29,6 @@ export const actions = {
 			});
 		}
 
-		throw redirect(303, '/projects');
+		throw redirect(303, '/studio/projects');
 	}
 } satisfies Actions;
